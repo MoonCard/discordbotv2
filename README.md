@@ -5,3 +5,4 @@
 #    "token": "botToken",
 # 	 "mashKey" : "key"
 # } 
+# this isn't well documented and it never will be if you have questions contact me at quincperry@gmail.com
