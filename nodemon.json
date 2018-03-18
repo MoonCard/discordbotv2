@@ -1,0 +1,3 @@
+{
+	"ignore": ["scores.json","items.json","ge.json","fails.json","./ge_items/*.json","randoms.json"]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "personal-bot",
+  "version": "1.0.0",
+  "description": "My own Discord bot",
+  "main": "bot.js",
+  "author": "Quin Perry",
+  "dependencies": {
+    "discord.io": "github:woor/discord.io#gateway_v6",
+    "discord.js": "^11.3.2",
+    "discord.js-commando": "^0.9.0",
+    "discordv8": "^8.4.2",
+    "ffmpeg-binaries": "^3.2.2-3",
+    "glob": "^7.1.2",
+    "node-fetch": "^2.1.1",
+    "opusscript": "0.0.6",
+    "osbuddy-api-wrapper": "^1.1.1",
+    "osrs-wrapper": "^1.0.4",
+    "path": "^0.12.7",
+    "trivia": "^1.0.0",
+    "unirest": "^0.5.1",
+    "url-download": "0.0.8",
+    "winston": "^2.4.0"
+  }
+}
