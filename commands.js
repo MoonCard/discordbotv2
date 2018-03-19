@@ -3,7 +3,7 @@ var manager = require('./OSRS.js');
 var scores = require('./scores.js');
 var fs = require('fs');
 var download = require('url-download');
-var trivia = require('./trivia.js');
+var Trivia = require('./newTrivia.js');
 var unirest = require('unirest');
 var auth = require('./auth.json');
 const osrs = require('osrs-wrapper');
@@ -11,23 +11,23 @@ var ge = require('./ge.json');
 
 module.exports = {
 	commands: async function (message, vc, homeChannel, bot) {
+
 		if (message.attachments.array().length > 0) {
-			dlFile(message.attachments.array()[0]);
+			if (scores.checkUser("coins", message.author.id)) {
+				if (scores.scoreCache.coins.users[message.author.id].coins > 0) {
+					dlFile(message.attachments.array()[0], message.author.id, message);
+				} else {
+					message.reply("You have 0 coins to spend");
+				}
+			}
 		}
 		if (message.content.substring(0, 1) == '!') {
+
 			let args = message.content.substring(1).split(' ');
 			let cmd = args[0];
-
 			args = args.splice(1)
+
 			switch (cmd) {
-				//				case 'resetvc':
-				//					{
-				//					  	vc.disconnect();
-				//						bot.guilds.find("id", "154249297842536448").channels.find("id", "154249298358304770").join().then(connection => {
-				//							vc = connection;
-				//						});
-				//					  break;
-				//					}
 				case 'getcoin':
 					{
 						let ID = message.author.id;
@@ -49,10 +49,7 @@ module.exports = {
 					{
 						if (message.member.id == "147441910154264576") {
 							vc.playFile('./wav/wah.wav');
-							let sesh = new trivia.Trivia();
-							sesh.request(function (callback) {
-								trivia.triviaManager(callback, homeChannel, bot);
-							});
+							var sesh = new Trivia(homeChannel,bot);
 						}
 						break;
 					}
@@ -226,7 +223,8 @@ module.exports = {
 	}
 }
 
-function dlFile(messageAttachment) {
+
+function dlFile(messageAttachment, uid, message) {
 	console.log('downloading file... ' + messageAttachment.filename);
 	let filen = messageAttachment.filename;
 	let filet = messageAttachment.filename.split(".");
@@ -235,6 +233,8 @@ function dlFile(messageAttachment) {
 	let fileurl = messageAttachment.url;
 	if (filet == "wav" || filet == "WAV") {
 		download(fileurl, './wav/').on('close', () => {
+			scores.addScores("coins", uid, (0 - 1));
+			message.reply("using coin to upload soundboard file...\nYou now have " + scores.getScores("coins", uid));
 			console.log("download complete");
 		});
 	}

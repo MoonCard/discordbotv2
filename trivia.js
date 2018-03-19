@@ -1,5 +1,4 @@
 var auth = require('./auth.json');
-var unirest = require('unirest');
 var scores = require('./scores.js');
 var fs = require('fs');
 
