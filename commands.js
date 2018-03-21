@@ -8,9 +8,10 @@ var unirest = require('unirest');
 var auth = require('./auth.json');
 const osrs = require('osrs-wrapper');
 var ge = require('./ge.json');
+var lottery = require("./Lottery.js");
 
 module.exports = {
-	commands: async function (message, vc, homeChannel, bot) {
+	commands: async function (message, homeChannel, bot) {
 
 		if (message.attachments.array().length > 0) {
 			if (scores.checkUser("coins", message.author.id)) {
@@ -28,6 +29,37 @@ module.exports = {
 			args = args.splice(1)
 
 			switch (cmd) {
+				case 'startLot':
+					{
+						lottery.startLottery(homeChannel);
+						homeChannel.send("Starting Lottery!\nType !enter to win big!");
+						break;
+					}
+				case 'enter':
+					{
+						lottery.addEntry(homeChannel, message);
+						break;
+					}
+				case 'draw':
+					{
+						if (message.member.id == "147441910154264576") {
+							lottery.drawWinner(homeChannel, bot);
+						}
+						break;
+					}
+				case 'loot':
+					{
+						homeChannel.send(lottery.getEntrys(homeChannel) + " coins in the pot")
+						break;
+					}
+					case 'reset':
+					{
+						message.member.voiceChannel.join().then(vc => {
+							vc.disconnect();
+							message.member.voiceChannel.join();
+						});
+						break;
+					}
 				case 'getcoin':
 					{
 						let ID = message.author.id;
@@ -48,8 +80,10 @@ module.exports = {
 				case 'trivtime':
 					{
 						if (message.member.id == "147441910154264576") {
-							vc.playFile('./wav/wah.wav');
-							var sesh = new Trivia(homeChannel,bot);
+							message.member.voiceChannel.join().then(vc => {
+								vc.playFile('./wav/wah.wav');
+								new Trivia(homeChannel, bot);
+							})
 						}
 						break;
 					}
@@ -58,47 +92,32 @@ module.exports = {
 						let d1 = Math.floor(Math.random() * 20) + 1;
 						let d2 = Math.floor(Math.random() * 20) + 1;
 						message.reply('You rolled: ' + d1 + ', ' + d2);
-						try {
-							if (d1 == d2 && scores.scoreCache.dice.users[message.member.id]) {
-								scores.scoreCache.dice.users[message.member.id].dubs = Number(scores.scoreCache.dice.users[message.member.id].dubs) + 1;
-								message.reply('You have rolled ' + scores.scoreCache.dice.users[message.member.id].dubs + ' dubs')
-								fs.writeFile("scores.json", JSON.stringify(scores), err => console.log(err));
-								vc.playFile('C:/Users/quinc/Downloads/Soundboard/impressive.wav');
+						if (d1 == d2 && scores.scoreCache.dice.users[message.member.id]) {
+							scores.addScores("dice", message.author.id, 1)
+							message.reply('You have rolled ' + scores.scoreCache.dice.users[message.member.id].dubs + ' dubs')
+							message.member.voiceChannel.join().then(vc => {
+								vc.playFile('./wav/impressive.wav');
 								if (d1 == 1) {
-									vc.playFile('C:/Users/quinc/Downloads/Soundboard/snakeeyes.wav');
+									vc.playFile('./wav/snakeeyes.wav');
 								}
-							} else if (d1 == d2) {
-								scores.dice.users[message.member.id] = {
-									"dubs": 1
-								};
-								fs.writeFile("scores.json", JSON.stringify(scores), err => console.log(err));
-								vc.playFile('C:/Users/quinc/Downloads/Soundboard/impressive.wav');
+							});
+						} else if (d1 == d2) {
+							scores.init("dice", message.author.id)
+							message.member.voiceChannel.join.then(vc => {
+								vc.playFile('./wav/impressive.wav');
 								message.reply('You have rolled ' + scores.dice.users[message.member.id].dubs + ' dubs')
 								if (d1 == 1) {
-									vc.playFile('C:/Users/quinc/Downloads/Soundboard/snakeeyes.wav');
+									vc.playFile('./wav/snakeeyes.wav');
 								}
-							}
-						} catch (err) {
-							console.error(err);
+							});
 						}
-						break;
-					}
-				case 'getinhere':
-					{
-						if (message.member.voiceChannel)
-							message.member.voiceChannel.join()
-							.then(connection => {
-								// Connection is an instance of VoiceConnection
-								vc = connection;
-							})
-							.catch(console.log);
 						break;
 					}
 				case 'kick':
 					{
-						if (vc != null) {
-							vc.disconnect();
-							vc = null;
+						console.log(bot.voiceConnections);
+						if (bot.voiceConnections[message.member.voiceChannelID]) {
+							message.member.voiceChannel.disconnect();
 						}
 						break;
 					}
@@ -233,7 +252,7 @@ function dlFile(messageAttachment, uid, message) {
 	let fileurl = messageAttachment.url;
 	if (filet == "wav" || filet == "WAV") {
 		download(fileurl, './wav/').on('close', () => {
-			scores.addScores("coins", uid, (0 - 1));
+			scores.decScores("coins", uid, 1);
 			message.reply("using coin to upload soundboard file...\nYou now have " + scores.getScores("coins", uid));
 			console.log("download complete");
 		});

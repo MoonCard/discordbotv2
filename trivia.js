@@ -54,11 +54,11 @@ function triviaManager(result, homeChannel, bot) {
 					scores.scoreCache.trivia.users[uid] = {
 						"correct": 1
 					}
-					fs.writeFile("scores.json", JSON.stringify(scores), err => {});
+					fs.writeFile("scores.json", JSON.stringify(scores.scoreCache), err => {});
 				} else {
 					scores.addScores('trivia',uid,1)//scores.trivia.users[uid].correct = scores.trivia.users[uid].correct + 1;
 					homeChannel.send(uname + " now has " + scores.scoreCache.trivia.users[uid].correct + " correct answers!")
-					fs.writeFile("scores.json", JSON.stringify(scores), err => {});
+					fs.writeFile("scores.json", JSON.stringify(scores.scoreCache), err => {});
 				}
 			}
 			homeChannel.send("The correct answer was: " + data.answer);

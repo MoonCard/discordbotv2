@@ -19,6 +19,7 @@ var manager = require('./OSRS.js');
 var cmand = require('./commands.js');
 
 
+
 // Initialize Discord Bot
 var bot = new Discord.Client({
 	token: auth.token,
@@ -29,7 +30,7 @@ glob.sync('./ge_items/*.json').forEach(function (file) {
 	require(path.resolve(file));
 });
 
-var vc;
+//var vc;
 var homeChannel;
 
 bot.login(auth.token)
@@ -38,28 +39,23 @@ bot.on('ready', () => {
 	console.log("Engaged");
 	d = new Date();
 	console.log(d.getTime());
-	bot.guilds.find("id", "154249297842536448").channels.find("id", "154249298358304770").join().then(connection => {
-		vc = connection;
-	});
+//	bot.guilds.find("id", "154249297842536448").channels.find("id", "154249298358304770").join().then(connection => {
+//		vc = connection;
+//	});
 	homeChannel = bot.guilds.find("id", "154249297842536448").channels.find("id", "154249297842536448");
 });
 
-bot.on('voiceStateUpdate', (oldMember, newMember) => {
-	if (newMember.id == '418609664008257558') {
-		newMember.voiceChannel.join().then(voiceConnection => vc = voiceConnection);
-	}
-})
-
 bot.on("guildMemberSpeaking", (member, speaking) => {
-	if (vc != null) {
+	member.voiceChannel.join().then(voiceConnection => {
+		if (voiceConnection != null) {
 		let rand = Math.random();
 		if (rand < .0005)
-			vc.playFile('C:/Users/quinc/Downloads/Soundboard/donttalk.wav');
-	}
+			voiceConnection.playFile('C:/Users/quinc/Downloads/Soundboard/donttalk.wav');
+	}});
 });
 
 bot.on('message', (message) => {
-	cmand.commands(message, vc, message.channel, bot);
+	cmand.commands(message, message.channel, bot);
 });
 
 
