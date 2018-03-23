@@ -28,11 +28,19 @@ class Lottery {
 	getEntrys() {
 		return this.data.entrys.length;
 	}
+	myEntrys(id) {
+		var count = 0;
+		for (var i = 0; i < this.data.entrys.length; ++i) {
+			if (this.data.entrys[i] == id)
+				count++;
+		}
+		return count;
+	}
 	drawWinner(homeChannel, bot) {
-		console.log("length:" + this.data.entrys.length)
+		//console.log("length:" + this.data.entrys.length)
 		if (this.data.entrys[0] != undefined) {
 			let rand = Math.floor(Math.random() * this.data.entrys.length);
-			console.log(rand);
+			//console.log(rand);
 			let id = this.data.entrys[rand];
 			bot.fetchUser(id).then(name => {
 				homeChannel.send(name + " has won!");
@@ -52,6 +60,10 @@ class Lottery {
 		this.fs.writeFile("./Lottery.json", JSON.stringify(this.data), (err) => {
 			console.log(err)
 		});
+	}
+	openLottery() {
+		if (this.data.startDate != "") return true;
+		else return false;
 	}
 }
 var lot = new Lottery();

@@ -35,6 +35,13 @@ module.exports = {
 						homeChannel.send("Starting Lottery!\nType !enter to win big!");
 						break;
 					}
+				case 'lotinfo':
+					{
+						if (lottery.openLottery()) {
+							homeChannel.send("There is currently a Lottery!\nType !enter to win big!\n" + lottery.getEntrys(homeChannel) + " coins in the pot!");
+						}
+						break;
+					}
 				case 'enter':
 					{
 						lottery.addEntry(homeChannel, message);
@@ -49,10 +56,15 @@ module.exports = {
 					}
 				case 'loot':
 					{
-						homeChannel.send(lottery.getEntrys(homeChannel) + " coins in the pot")
+						homeChannel.send(lottery.getEntrys() + " coins in the pot")
 						break;
 					}
-					case 'reset':
+				case 'myentries':
+					{
+						homeChannel.send(lottery.myEntrys(message.author.id) + " entries in the system")
+						break;
+					}
+				case 'reset':
 					{
 						message.member.voiceChannel.join().then(vc => {
 							vc.disconnect();
@@ -133,8 +145,8 @@ module.exports = {
 										homeChannel.send("Couldn't play file");
 									}
 							});
-							break;
 						}
+						break;
 					}
 				case 'help':
 					{
