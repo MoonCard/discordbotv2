@@ -50,7 +50,7 @@ bot.on("guildMemberSpeaking", (member, speaking) => {
 		if (voiceConnection != null) {
 		let rand = Math.random();
 		if (rand < .0005)
-			voiceConnection.playFile('C:/Users/quinc/Downloads/Soundboard/donttalk.wav');
+			voiceConnection.playFile('./wav/donttalk.wav');
 	}});
 });
 

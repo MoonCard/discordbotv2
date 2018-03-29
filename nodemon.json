@@ -6,6 +6,7 @@
 		"fails.json",
 		"./ge_items/*.json",
 		"randoms.json",
-		"./Lottery.json"
+		"./Lottery.json",
+		"./slotarray.json"
 	]
 }

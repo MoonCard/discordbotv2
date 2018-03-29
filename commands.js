@@ -64,6 +64,37 @@ module.exports = {
 						homeChannel.send(lottery.myEntrys(message.author.id) + " entries in the system")
 						break;
 					}
+				case 'spin':
+					{
+						if (hasCoins(message, 0)) {
+							scores.decScores("coins", message.author.id, 1);
+							lottery.spinSlots(message);
+						}else{
+							message.reply("You don't have enough coins");
+						}
+						break;
+					}
+				case 'buyslot':
+					{
+						if (args[0] == 'help') {
+							homeChannel.send("type !buyslot then your message then the slot number to overwrite\nsee !seeslots for details\nCost: 10 coins");
+						} else if (hasCoins(message, 10)) {
+							scores.decScores('coins', message.author.id, 10);
+							lottery.setLottoArray(args[0], args[1]);
+						} else {
+							homeChannel.send("not nuff coins");
+						}
+						break;
+					}
+				case 'seeslots':
+					{
+						let slotString = ''
+						for (d in lottery.getLottoArray()) {
+							slotString = slotString + lottery.getLottoArray()[d] + "\n";
+						}
+						homeChannel.send("Current slots:\n" + slotString);
+						break;
+					}
 				case 'reset':
 					{
 						message.member.voiceChannel.join().then(vc => {
@@ -104,15 +135,17 @@ module.exports = {
 						let d1 = Math.floor(Math.random() * 20) + 1;
 						let d2 = Math.floor(Math.random() * 20) + 1;
 						message.reply('You rolled: ' + d1 + ', ' + d2);
-						if (d1 == d2 && scores.scoreCache.dice.users[message.member.id]) {
+						if (d1 == d2 && scores.scoreCache.dice.users[message.author.id]) {
 							scores.addScores("dice", message.author.id, 1)
-							message.reply('You have rolled ' + scores.scoreCache.dice.users[message.member.id].dubs + ' dubs')
-							message.member.voiceChannel.join().then(vc => {
-								vc.playFile('./wav/impressive.wav');
-								if (d1 == 1) {
-									vc.playFile('./wav/snakeeyes.wav');
-								}
-							});
+							message.reply('You have rolled ' + scores.scoreCache.dice.users[message.author.id].dubs + ' dubs')
+							if (message.member.voiceChannel) {
+								message.member.voiceChannel.join().then(vc => {
+									vc.playFile('./wav/impressive.wav');
+									if (d1 == 1) {
+										vc.playFile('./wav/snakeeyes.wav');
+									}
+								});
+							}
 						} else if (d1 == d2) {
 							scores.init("dice", message.author.id)
 							message.member.voiceChannel.join.then(vc => {
@@ -249,11 +282,51 @@ module.exports = {
 						}
 						break;
 					}
+				case 'earrape':
+					{
+						args[0] = args.join(' ');
+						if (args[0] == "help") {
+							message.reply("Type !earrape then a user name to earrape");
+						}
+						if (args[0] != undefined) {
+							if (hasCoins(message, 3)) {
+								//scores.decScores('coins',message.author.id,3);
+								//console.log(bot.users.findAll("username", args[0])[0].id);
+								let uid = bot.users.findAll("username", args[0])[0].id;
+								if (uid != undefined) {
+									let gm = bot.guilds.find("id", "154249297842536448").members.findAll("id", uid)[0];
+									let currchan = gm.voiceChannel;
+									gm.setVoiceChannel(bot.guilds.find("id", "154249297842536448").channels.find("id", "428370031777153035"));
+									bot.guilds.find("id", "154249297842536448").channels.find("id", "428370031777153035").join().then(voice => {
+										voice.playFile('./wav/8==D.wav').on('end', () => {
+											gm.setVoiceChannel(currchan);
+											//voice.disconnect();
+										});
+									});
+								} else {
+									message.reply("user not found");
+								}
+							} else {
+								message.reply("not enough coins");
+							}
+						} else {
+							console.log * ("error");
+						}
+						break;
+					}
 			}
 		}
 	}
 }
 
+
+function hasCoins(message, ammount) {
+	if (scores.scoreCache.coins.users[message.author.id]) {
+		if (scores.scoreCache.coins.users[message.author.id].coins > ammount) {
+			return true;
+		} else return false;
+	} else return false;
+}
 
 function dlFile(messageAttachment, uid, message) {
 	console.log('downloading file... ' + messageAttachment.filename);
